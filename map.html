@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Pertanahan - Peta</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #1B263B 0%, #2E3B55 50%, #415A77 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="10" cy="10" r="0.5" fill="rgba(255,255,255,0.3)"/><circle cx="40" cy="40" r="0.7" fill="rgba(255,255,255,0.2)"/><circle cx="25" cy="20" r="0.4" fill="rgba(255,255,255,0.4)"/><circle cx="15" cy="35" r="0.6" fill="rgba(255,255,255,0.3)"/></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+            opacity: 0.4;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            margin-left: 20px;
+        }
+
+        /* Header Links Container */
+        .header-links {
+            position: relative;
+            z-index: 1;
+            margin-right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background: linear-gradient(135deg, #0A1122 0%, #1B263B 100%);
+        }
+
+        .header-links a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Navigation Styles */
+        nav {
+            background: linear-gradient(135deg, #0A1122 0%, #1B263B 100%);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        nav a {
+            color: white;
+            margin: 0 20px;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s;
+        }
+
+        nav a:hover::before {
+            left: 100%;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Back Button Styles */
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #1B263B 0%, #415A77 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            margin: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(65, 90, 119, 0.4);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(65, 90, 119, 0.5);
+        }
+
+        /* Map Section */
+        #main-content { 
+            padding: 20px; 
+            background: linear-gradient(145deg, rgba(30, 39, 66, 0.95) 0%, rgba(44, 57, 92, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            margin: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        #main-content h1 {
+            color: #E0E1DD;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #main-content .date-time {
+            color: #B0B8C4;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        #info-table {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(30, 39, 66, 0.95);
+            padding: 10px;
+            border: 1px solid rgba(65, 90, 119, 0.2);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #E0E1DD;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        #legend {
+            background: rgba(30, 39, 66, 0.95);
+            padding: 20px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2000;
+            max-height: 300px;
+            overflow-y: auto;
+            color: #E0E1DD;
+            border-radius: 10px;
+            border: 1px solid rgba(65, 90, 119, 0.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .leaflet-control-info {
+            background: rgba(30, 39, 66, 0.95);
+            padding: 5px 10px;
+            border: 2px solid rgba(65, 90, 119, 0.4);
+            border-radius: 4px;
+            cursor: pointer;
+            color: #E0E1DD;
+        }
+
+        .leaflet-control-info:hover {
+            background: rgba(44, 57, 92, 0.95);
+        }
+
+        /* Enhanced popup styling */
+        .leaflet-popup-content {
+            margin: 8px 12px;
+            line-height: 1.4;
+            color: #E0E1DD;
+        }
+
+        .popup-header {
+            background: #415A77;
+            color: white;
+            padding: 8px 12px;
+            margin: -8px -12px 8px -12px;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .popup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .popup-table th, .popup-table td {
+            border: 1px solid #778DA9;
+            padding: 6px 8px;
+            text-align: left;
+            color: #E0E1DD;
+        }
+
+        .popup-table th {
+            background-color: rgba(44, 57, 92, 0.95);
+            font-weight: bold;
+        }
+
+        .popup-table tr:nth-child(even) {
+            background-color: rgba(30, 39, 66, 0.95);
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 20px;
+            color: #B0B8C4;
+        }
+
+        #map {
+            width: 100%; 
+            height: 750px; 
+            margin-bottom: 100px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            color: white;
+            padding: 20px 0;
+            font-family: 'Poppins', sans-serif;
+            flex-shrink: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .footer-section p {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            margin: 5px 0;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <h1><i class="fas fa-map-marked-alt"></i> SITAU</h1>
+            <div class="header-links">
+                <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="register.html"><i class="fas fa-user-plus"></i> Register</a>
+            </div>
+        </header>
+
+        <nav>
+            <a href="index.html"><i class="fas fa-home"></i> Home</a>
+            <a href="tentang.html"><i class="fas fa-info-circle"></i> Tentang</a>
+            <a href="contact.html"><i class="fas fa-address-book"></i> Contact</a>
+        </nav>
+
+        <!-- Back Button -->
+        <a href="login.html" class="back-button"><i class="fas fa-arrow-left"></i> Kembali</a>
+
+        <!-- Map Content -->
+        <div id="main-content">
+            <h1>Peta Interaktif Desa Bawu</h1>
+            <div class="date-time">Tanggal dan Waktu: 09:07 PM WIB, Selasa, 03 Juni 2025</div>
+            <div id="map"></div>
+            <div id="legend"></div>
+            <div id="info-table"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>KONTAK KAMI</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Jl. Banjarsari, Tembalang, Kota Semarang</p>
+                <p><i class="fas fa-phone"></i> 08998639593</p>
+                <p><i class="fas fa-envelope"></i> info@wisatayuk.go.id</p>
+            </div>
+            <div class="footer-section">
+                <h3>TAUTAN CEPAT</h3>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Syarat dan Ketentuan</a>
+                <a href="#">FAQ</a>
+                <a href="#">Peta Situs</a>
+            </div>
+            <div class="footer-section">
+                <h3>TERHUBUNG</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SITAU - Sistem Informasi Pertanahan Desa Bawu.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Layer configuration with Indonesian names
+    const layerConfig = {
+        "bidangtanah_bawu": {
+            name: "Bidang Tanah",
+            description: "Data bidang tanah di Desa Bawu"
+        },
+        "hak_bawu": {
+            name: "Hak Tanah", 
+            description: "Data hak kepemilikan tanah"
+        },
+        "pl_bawu": {
+            name: "Penggunaan Lahan",
+            description: "Data penggunaan lahan"
+        },
+        "znt_bawu": {
+            name: "Zona Nilai Tanah",
+            description: "Data zona nilai tanah"
+        }
+    };
+
+    // Initialize map
+    var map = L.map('map').setView([-7.310924, 110.736309], 16);
+
+    // Basemap
+    var osmDefault = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    var osmHOT = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team'
+    });
+
+    // Layer WMS
+    var wmsLayer1 = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+        layers: "bidangtanah_bawu",
+        format: "image/png",
+        transparent: true
+    }).addTo(map);
+
+    var wmsLayer2 = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+        layers: "hak_bawu",
+        format: "image/png",
+        transparent: true
+    }).addTo(map);
+
+    var wmsLayer3 = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+        layers: "pl_bawu",
+        format: "image/png",
+        transparent: true
+    }).addTo(map);
+
+    var wmsLayer4 = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+        layers: "znt_bawu",
+        format: "image/png",
+        transparent: true
+    }).addTo(map);
+
+    // Store layer references
+    var wmsLayers = {
+        "bidangtanah_bawu": wmsLayer1,
+        "hak_bawu": wmsLayer2,
+        "pl_bawu": wmsLayer3,
+        "znt_bawu": wmsLayer4
+    };
+
+    // Legend function
+    function updateLegend() {
+        var legendContent = "<h3>Legenda</h3>";
+        
+        for (var layerName in wmsLayers) {
+            if (map.hasLayer(wmsLayers[layerName])) {
+                var legendUrl = `http://localhost:8080/geoserver/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=${layerName}`;
+                var displayName = layerConfig[layerName] ? layerConfig[layerName].name : layerName;
+                legendContent += `<h4>${displayName}</h4><img src="${legendUrl}" alt="${layerName} Legenda" style="max-width: 100%;"><br>`;
+            }
+        }
+        document.getElementById("legend").innerHTML = legendContent || "<p>Tidak ada legenda tersedia.</p>";
+    }
+
+    updateLegend();
+    map.on('overlayadd overlayremove', updateLegend);
+
+    // Layers control
+    var basemap = {
+        "OpenStreetMap": osmDefault,
+        "OpenStreetMap Humanitarian": osmHOT
+    };
+    var overlaymap = {
+        "Bidang Tanah": wmsLayer1,
+        "Hak Tanah": wmsLayer2,
+        "Penggunaan Lahan": wmsLayer3,
+        "Zona Nilai Tanah": wmsLayer4
+    };
+    L.control.layers(basemap, overlaymap).addTo(map);
+
+    // Custom Info Button
+    var infoControl = L.control({ position: 'topleft' });
+
+    infoControl.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'leaflet-control-info');
+        this._div.innerHTML = '<button type="button">Info</button>';
+        L.DomEvent.disableClickPropagation(this._div);
+        L.DomEvent.on(this._div.querySelector('button'), 'click', function() {
+            var popupContent = `
+                <div class="popup-header">Peta Interaktif Desa Bawu</div>
+                <p>Peta ini menampilkan informasi pertanahan di Desa Bawu. Klik pada peta untuk melihat informasi detail setiap bidang.</p>
+                <ul>
+                    <li><b>Bidang Tanah</b>: Data bidang tanah</li>
+                    <li><b>Hak Tanah</b>: Data hak kepemilikan</li>
+                    <li><b>Penggunaan Lahan</b>: Data penggunaan lahan</li>
+                    <li><b>Zona Nilai Tanah</b>: Data zona nilai tanah</li>
+                </ul>
+                <p>Gunakan kontrol layer untuk menampilkan/menyembunyikan layer yang berbeda.</p>
+            `;
+            L.popup()
+                .setLatLng(map.getCenter())
+                .setContent(popupContent)
+                .openOn(map);
+        });
+        return this._div;
+    };
+
+    infoControl.addTo(map);
+
+    // Simplified click handler with better error handling
+    map.on('click', function(e) {
+        var pos = e.latlng;
+        var pt = map.latLngToContainerPoint(pos);
+        var w = map.getSize().x;
+        var h = map.getSize().y;
+        var bnd = map.getBounds();
+
+        // Get list of currently visible WMS layers
+        var visibleLayers = [];
+        for (var layerName in wmsLayers) {
+            if (map.hasLayer(wmsLayers[layerName])) {
+                visibleLayers.push(layerName);
+            }
+        }
+
+        if (visibleLayers.length === 0) {
+            L.popup()
+                .setLatLng(pos)
+                .setContent('<div class="popup-header">Informasi</div><p>Tidak ada layer yang aktif. Silakan aktifkan layer terlebih dahulu.</p>')
+                .openOn(map);
+            return;
+        }
+
+        // Show loading popup
+        var loadingPopup = L.popup()
+            .setLatLng(pos)
+            .setContent('<div class="loading-spinner">Memuat informasi...</div>')
+            .openOn(map);
+
+        // Function to get feature info for a single layer
+        function getFeatureInfo(layerName) {
+            return new Promise(function(resolve) {
+                var params = {
+                    service: "WMS",
+                    version: "1.1.1",
+                    request: "GetFeatureInfo",
+                    info_format: "application/json",
+                    layers: layerName,
+                    query_layers: layerName,
+                    width: w,
+                    height: h,
+                    x: Math.round(pt.x),
+                    y: Math.round(pt.y),
+                    bbox: bnd.getWest() + "," + bnd.getSouth() + "," + bnd.getEast() + "," + bnd.getNorth(),
+                    srs: "EPSG:4326",
+                    feature_count: 10
+                };
+
+                $.ajax({
+                    url: "http://localhost:8080/geoserver/wms",
+                    method: "GET",
+                    data: params,
+                    timeout: 8000,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response && response.features && response.features.length > 0) {
+                            resolve({
+                                layerName: layerName,
+                                success: true,
+                                data: response.features[0].properties
+                            });
+                        } else {
+                            resolve({
+                                layerName: layerName,
+                                success: true,
+                                noData: true
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(`Error querying ${layerName}:`, status, error);
+                        // Try HTML format as fallback
+                        $.ajax({
+                            url: "http://localhost:8080/geoserver/wms",
+                            method: "GET",
+                            data: Object.assign({}, params, {info_format: "text/html"}),
+                            timeout: 8000,
+                            success: function(htmlResponse) {
+                                if (htmlResponse && htmlResponse.trim() !== "" && !htmlResponse.toLowerCase().includes("no features")) {
+                                    resolve({
+                                        layerName: layerName,
+                                        success: true,
+                                        htmlData: htmlResponse
+                                    });
+                                } else {
+                                    resolve({
+                                        layerName: layerName,
+                                        success: true,
+                                        noData: true
+                                    });
+                                }
+                            },
+                            error: function() {
+                                resolve({
+                                    layerName: layerName,
+                                    success: false,
+                                    error: "Tidak dapat mengakses server GeoServer"
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // Query all visible layers
+        var promises = visibleLayers.map(getFeatureInfo);
+
+        Promise.all(promises).then(function(results) {
+            var popupContent = "";
+            var hasData = false;
+
+            results.forEach(function(result) {
+                var layerDisplayName = layerConfig[result.layerName] ? layerConfig[result.layerName].name : result.layerName;
+                
+                if (!result.success) {
+                    popupContent += '<div class="popup-header" style="background: #dc3545;">' + layerDisplayName + '</div>';
+                    popupContent += '<p style="color: #dc3545;">' + (result.error || 'Terjadi kesalahan') + '</p><br>';
+                } else if (result.noData) {
+                    popupContent += '<div class="popup-header" style="background: #6c757d;">' + layerDisplayName + '</div>';
+                    popupContent += '<p style="color: #6c757d;">Tidak ada data di lokasi ini</p><br>';
+                } else {
+                    hasData = true;
+                    popupContent += '<div class="popup-header">' + layerDisplayName + '</div>';
+                    
+                    if (layerConfig[result.layerName] && layerConfig[result.layerName].description) {
+                        popupContent += '<p><em>' + layerConfig[result.layerName].description + '</em></p>';
+                    }
+                    
+                    if (result.data) {
+                        popupContent += '<table class="popup-table">';
+                        popupContent += '<tr><th>Atribut</th><th>Nilai</th></tr>';
+                        
+                        for (var key in result.data) {
+                            if (result.data.hasOwnProperty(key)) {
+                                var value = result.data[key];
+                                var displayValue = (value !== null && value !== undefined && value !== "") ? value : "N/A";
+                                popupContent += '<tr><td>' + key + '</td><td>' + displayValue + '</td></tr>';
+                            }
+                        }
+                        
+                        popupContent += '</table>';
+                    } else if (result.htmlData) {
+                        popupContent += '<div style="max-height: 150px; overflow-y: auto;">' + result.htmlData + '</div>';
+                    }
+                    
+                    popupContent += '<br>';
+                }
+            });
+
+            if (!hasData && results.every(r => r.noData || !r.success)) {
+                popupContent = '<div class="popup-header">Informasi Lokasi</div>' +
+                             '<p>Koordinat: ' + pos.lat.toFixed(6) + ', ' + pos.lng.toFixed(6) + '</p>' +
+                             '<p>Tidak ada data fitur ditemukan di lokasi ini pada layer yang aktif.</p>' +
+                             '<p><small>Pastikan Anda mengklik area yang memiliki data pada layer yang diaktifkan.</small></p>';
+            }
+
+            // Close loading popup and show result
+            map.closePopup();
+            
+            L.popup({ 
+                maxWidth: 500, 
+                maxHeight: 400,
+                closeButton: true,
+                autoClose: true,
+                closeOnClick: true
+            })
+            .setLatLng(pos)
+            .setContent(popupContent)
+            .openOn(map);
+
+        }).catch(function(error) {
+            console.error("Error in popup processing:", error);
+            map.closePopup();
+            
+            L.popup()
+                .setLatLng(pos)
+                .setContent('<div class="popup-header" style="background: #dc3545;">Error</div>' +
+                           '<p>Terjadi kesalahan saat memproses permintaan.</p>' +
+                           '<p><small>Periksa koneksi ke server GeoServer atau coba lagi.</small></p>')
+                .openOn(map);
+        });
+    });
+    </script>
+
+    <video autoplay muted loop id="backgroundVideo" style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
+        <source src="Video/Animasi.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</body>
+</html>

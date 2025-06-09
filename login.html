@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Pertanahan - Login</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #1B263B 0%, #2E3B55 50%, #415A77 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex: 1 0 auto;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="stars" patternUnits="userSpaceOnUse" width="50" height="50"><circle cx="10" cy="10" r="0.5" fill="rgba(255,255,255,0.3)"/><circle cx="40" cy="40" r="0.7" fill="rgba(255,255,255,0.2)"/><circle cx="25" cy="20" r="0.4" fill="rgba(255,255,255,0.4)"/><circle cx="15" cy="35" r="0.6" fill="rgba(255,255,255,0.3)"/></pattern></defs><rect width="100" height="100" fill="url(%23stars)"/></svg>');
+            opacity: 0.4;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Links Container */
+        .header-links {
+            position: relative;
+            z-index: 1;
+            margin-right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            background: linear-gradient(135deg, #0A1122 0%, #1B263B 100%);
+        }
+
+        .header-links a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Navigation Styles */
+        nav {
+            background: linear-gradient(135deg, #0A1122 0%, #1B263B 100%);
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        nav a {
+            color: white;
+            margin: 0 20px;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.5s;
+        }
+
+        nav a:hover::before {
+            left: 100%;
+        }
+
+        nav a:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        /* Back Button Styles */
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #1B263B 0%, #415A77 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            margin: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(65, 90, 119, 0.4);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(65, 90, 119, 0.5);
+        }
+
+        /* Login Form Styles */
+        #login-form {
+            max-width: 400px;
+            margin: 80px auto;
+            padding: 40px;
+            background: linear-gradient(145deg, rgba(30, 39, 66, 0.95) 0%, rgba(44, 57, 92, 0.95) 100%);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            border: 1px solid rgba(65, 90, 119, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        #login-form h2 {
+            text-align: center;
+            color: #E0E1DD;
+            margin-bottom: 30px;
+            font-weight: 600;
+            font-size: 1.8rem;
+        }
+
+        #login-form input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 2px solid #778DA9;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.9);
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #login-form input:focus {
+            outline: none;
+            border-color: #415A77;
+            box-shadow: 0 0 0 3px rgba(65, 90, 119, 0.2);
+            transform: translateY(-2px);
+        }
+
+        #login-form button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #1B263B 0%, #415A77 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(65, 90, 119, 0.4);
+        }
+
+        #login-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(65, 90, 119, 0.5);
+        }
+
+        #login-form button:active {
+            transform: translateY(0);
+        }
+
+        /* Pop-up Styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(30, 39, 66, 0.95) 0%, rgba(44, 57, 92, 0.95) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            animation: popIn 0.5s ease-out;
+        }
+
+        .popup i {
+            font-size: 3rem;
+            color: #28a745;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        .popup p {
+            font-size: 1.2rem;
+            color: #E0E1DD;
+            font-weight: 500;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Animations */
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Footer Styles */
+        footer {
+            background: linear-gradient(135deg, #0D1B2A 0%, #1B263B 100%);
+            color: white;
+            padding: 20px 0;
+            font-family: 'Poppins', sans-serif;
+            flex-shrink: 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 200px;
+            margin: 10px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .footer-section p {
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-section a {
+            color: white;
+            text-decoration: none;
+            margin: 5px 0;
+            display: block;
+        }
+
+        .footer-section a:hover {
+            text-decoration: underline;
+        }
+
+        .social-icons a {
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            opacity: 0.8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-map-marked-alt"></i> SITAU</h1>
+        <div class="header-links">
+            <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+            <a href="register.html"><i class="fas fa-user-plus"></i> Register</a>
+        </div>
+    </header>
+
+    <nav>
+        <a href="index.html"><i class="fas fa-home"></i> Home</a>
+        <a href="tentang.html"><i class="fas fa-info-circle"></i> Tentang</a>
+        <a href="contact.html"><i class="fas fa-address-book"></i> Contact</a>
+    </nav>
+
+    <!-- Back Button -->
+    <a href="index.html" class="back-button"><i class="fas fa-arrow-left"></i> Kembali</a>
+
+    <!-- Form Login -->
+    <div id="login-form">
+        <h2><i class="fas fa-user-lock"></i> Login Sistem</h2>
+        <input type="text" id="username" placeholder="Masukkan Username">
+        <input type="password" id="password" placeholder="Masukkan Password">
+        <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Masuk Sistem</button>
+        <p id="login-message" style="color:#d32f2f; text-align:center; margin-top:15px;"></p>
+    </div>
+
+    <!-- Pop-up Overlay -->
+    <div class="popup-overlay" id="popup-overlay"></div>
+
+    <!-- Pop-up Success -->
+    <div class="popup" id="success-popup">
+        <i class="fas fa-check-circle"></i>
+        <p>Anda Berhasil Login! 😊</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>KONTAK KAMI</h3>
+                <p><i class="fas fa-map-marker-alt"></i> Jl. Banjarsari, Tembalang, Kota Semarang</p>
+                <p><i class="fas fa-phone"></i> 08998639593</p>
+                <p><i class="fas fa-envelope"></i> info@wisatayuk.go.id</p>
+            </div>
+            <div class="footer-section">
+                <h3>TAUTAN CEPAT</h3>
+                <a href="#">Kebijakan Privasi</a>
+                <a href="#">Syarat dan Ketentuan</a>
+                <a href="#">FAQ</a>
+                <a href="#">Peta Situs</a>
+            </div>
+            <div class="footer-section">
+                <h3>TERHUBUNG</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SITAU - Sistem Informasi Pertanahan Desa Bawu.</p>
+        </div>
+    </footer>
+
+    <script>
+    // Daftar akun yang diizinkan
+    const allowedAccounts = [
+        { username: "admin", password: "12345" },
+        { username: "user1", password: "abcde" },
+        { username: "petugas", password: "petugas123" },
+        { username: "kepaladesa", password: "desa456" }
+    ];
+
+    function login() {
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+        const messageEl = document.getElementById("login-message");
+        const popup = document.getElementById("success-popup");
+        const overlay = document.getElementById("popup-overlay");
+
+        const validUser = allowedAccounts.find(account => account.username === user && account.password === pass);
+
+        if (validUser) {
+            // Tampilkan pop-up
+            popup.style.display = "block";
+            overlay.style.display = "block";
+
+            // Redirect setelah 2 detik
+            setTimeout(() => {
+                window.location.href = "map.html";
+            }, 2000);
+        } else {
+            messageEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Username atau password salah!';
+        }
+    }
+    </script>
+
+   </footer>
+      <video autoplay muted loop id="backgroundVideo" style="position: fixed; right: 0; bottom: 0; min-width: 100%; min-height: 100%; z-index: -1;">
+        <source src="Vidio/Animasi.mp4.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</body>
+</html>
